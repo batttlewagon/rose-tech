@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>rose.tech — your daily dive into artificial agentics</title>
+<style>
+  :root{
+    --dolphin: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='38' height='38'><text x='1' y='29' font-size='30'>🐬</text></svg>") 6 20;
+    --ink:#241b3a;
+    --muted:#6b6480;
+    --card:#ffffff;
+    --pink:#ff5fa2; --purple:#6c5ce7; --green:#00b894; --orange:#ff9f1c; --blue:#0984e3; --grey:#636e72;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family: ui-rounded, "SF Pro Rounded", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    color:var(--ink);
+    cursor: var(--dolphin), auto;
+    background: linear-gradient(135deg,#ffd1f0 0%, #d8c7ff 25%, #c2f0ff 50%, #d4ffe4 75%, #fff3c2 100%);
+    background-attachment: fixed;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--purple);text-decoration:none}
+  a:hover{text-decoration:underline}
+  button, .chip, a, .tag, summary{cursor:pointer}
+  input, textarea{cursor:text}
+
+  .wrap{max-width:1000px;margin:0 auto;padding:0 18px}
+
+  /* HERO */
+  header.hero{padding:42px 0 22px;text-align:center}
+  .logo{font-size:clamp(38px,7vw,68px);font-weight:800;letter-spacing:-1px;margin:0;line-height:1}
+  .logo .dot{color:var(--pink)}
+  .tagline{font-size:clamp(15px,2.4vw,20px);color:#4b3f63;margin:10px 0 0;font-weight:600}
+  .searchbar{margin:22px auto 8px;max-width:640px;position:relative}
+  .searchbar input{
+    width:100%;font-size:18px;padding:16px 18px 16px 50px;border-radius:18px;border:3px solid #ffffff;
+    background:rgba(255,255,255,.78);box-shadow:0 10px 30px rgba(108,92,231,.18);outline:none;font-weight:600;color:var(--ink);
+  }
+  .searchbar input:focus{border-color:var(--purple)}
+  .searchbar .mag{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:22px;pointer-events:none}
+  .stats{font-size:13.5px;color:#5a4f72;font-weight:700;margin-top:8px}
+  .stats b{color:var(--purple)}
+
+  /* CHIPS */
+  .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0 4px}
+  .chip{border:2px solid rgba(255,255,255,.9);background:rgba(255,255,255,.55);padding:7px 14px;border-radius:999px;font-weight:800;font-size:13px;color:#4b3f63;transition:transform .08s ease, background .15s}
+  .chip:hover{transform:translateY(-2px)}
+  .chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .activeTag{display:none;justify-content:center;align-items:center;gap:8px;margin:12px 0 0;font-weight:700;color:#4b3f63}
+  .activeTag .x{background:var(--pink);color:#fff;border:none;border-radius:999px;width:22px;height:22px;font-weight:900}
+
+  /* SECTIONS */
+  section{margin:30px 0}
+  .sectionhead{display:flex;align-items:baseline;gap:12px;margin:0 0 14px}
+  .sectionhead h2{font-size:24px;margin:0;font-weight:800}
+  .sectionhead .sub{color:#5a4f72;font-weight:700;font-size:13.5px}
+
+  /* CARD */
+  .grid{display:grid;gap:18px}
+  .card{
+    background:var(--card);border-radius:20px;padding:20px 22px;border-left:8px solid var(--grey);
+    box-shadow:0 12px 28px rgba(70,50,120,.12);transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .card:hover{transform:translateY(-3px);box-shadow:0 18px 38px rgba(70,50,120,.18)}
+  .card .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .badge{font-size:12px;font-weight:900;color:#fff;padding:4px 10px;border-radius:999px;letter-spacing:.2px}
+  .emoji{font-size:22px}
+  .date{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700}
+  .card h3{font-size:20px;margin:6px 0 6px;line-height:1.25;font-weight:800}
+  .card h3 a{color:var(--ink)}
+  .card h3 a:hover{color:var(--purple)}
+  .source{font-size:13px;color:var(--muted);font-weight:700;margin-bottom:8px}
+  .source .link{color:var(--purple)}
+  .summary{font-size:15.5px;line-height:1.6;color:#352b4d;margin:0 0 12px;max-width:70ch}
+  .qbox{background:linear-gradient(90deg,#fff4fb,#f3f0ff);border-radius:14px;padding:10px 14px;font-weight:700;font-size:14px;color:#4b3f63;margin:0 0 12px;max-width:72ch}
+  .qbox .qlabel{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--pink);display:block;margin-bottom:2px}
+  .tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+  .tag{background:#f0ecff;color:#5b4bd6;font-weight:800;font-size:12px;padding:5px 11px;border-radius:999px;border:none;transition:background .12s}
+  .tag:hover{background:#e0d8ff}
+  .tag::before{content:"#";opacity:.6}
+  .cardfoot{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px dashed #e7e2f2;padding-top:12px}
+  .learn{display:flex;align-items:center;gap:7px;font-weight:800;font-size:13.5px;color:#4b3f63;user-select:none}
+  .learn input{width:18px;height:18px;cursor:pointer;accent-color:var(--green)}
+  .notetoggle{background:none;border:2px solid #e7e2f2;border-radius:10px;padding:6px 12px;font-weight:800;font-size:13px;color:#5a4f72}
+  .notetoggle:hover{border-color:var(--purple);color:var(--purple)}
+  .notewrap{margin-top:12px;display:none}
+  .notewrap.open{display:block}
+  .notewrap textarea{width:100%;min-height:80px;border-radius:12px;border:2px solid #e7e2f2;padding:11px 13px;font:inherit;font-size:14px;resize:vertical;background:#fcfbff}
+  .notewrap textarea:focus{outline:none;border-color:var(--purple)}
+  .saved{font-size:12px;color:var(--green);font-weight:800;margin-top:5px;height:14px}
+
+  /* GLOSSARY */
+  .glosswrap{background:rgba(255,255,255,.7);border-radius:22px;padding:8px 22px 22px}
+  details.term{border-bottom:1px solid #ece7f7;padding:4px 0}
+  details.term summary{list-style:none;padding:12px 4px;font-weight:800;font-size:16px;display:flex;align-items:center;gap:10px}
+  details.term summary::-webkit-details-marker{display:none}
+  details.term summary::before{content:"🐬";font-size:15px}
+  details.term[open] summary{color:var(--purple)}
+  details.term p{margin:0 4px 12px 32px;color:#4b3f63;line-height:1.55;font-size:14.5px}
+
+  /* TEACH BACK */
+  .teach{background:linear-gradient(135deg,#241b3a,#3a2a63);color:#fff;border-radius:24px;padding:26px 26px 30px}
+  .teach h2{margin:0 0 4px;font-size:24px}
+  .teach p.lead{margin:0 0 16px;color:#d6cdf2;font-weight:600;line-height:1.55;font-size:14.5px}
+  .vform{display:flex;gap:10px;flex-wrap:wrap}
+  .vform input{flex:1;min-width:200px;padding:13px 15px;border-radius:13px;border:none;font:inherit;font-size:14.5px}
+  .vform input.title{flex:.6}
+  .vform button{background:var(--pink);color:#fff;border:none;border-radius:13px;padding:13px 22px;font-weight:900;font-size:14.5px}
+  .vform button:hover{background:#ff7db5}
+  .hint{color:#b7abdf;font-size:12.5px;margin:9px 2px 0;font-weight:600}
+  .videos{display:grid;gap:18px;margin-top:20px}
+  .vid{background:rgba(255,255,255,.08);border-radius:16px;padding:14px}
+  .vid .vtop{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .vid .vtitle{font-weight:800;font-size:15px}
+  .vid .vdate{margin-left:auto;color:#b7abdf;font-size:12px;font-weight:700}
+  .vid .del{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:9px;padding:5px 11px;font-weight:800;font-size:12px}
+  .vid .del:hover{background:var(--pink)}
+  .vid .frame{position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000}
+  .vid iframe,.vid video{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .vempty{color:#b7abdf;font-weight:600;font-size:14px;margin-top:16px}
+
+  footer{text-align:center;padding:34px 0 50px;color:#5a4f72;font-weight:700;font-size:13px}
+  .empty{background:rgba(255,255,255,.6);border-radius:18px;padding:30px;text-align:center;font-weight:700;color:#5a4f72}
+  @media(max-width:560px){ .card{padding:18px} .date{margin-left:0} }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <h1 class="logo">rose<span class="dot">.</span>tech 🐬</h1>
+      <p class="tagline" id="tagline">your daily dive into artificial agentics</p>
+      <div class="searchbar">
+        <span class="mag">🔍</span>
+        <input id="search" type="search" placeholder="search the agentics library — try 'multi-agent', 'alignment', 'cost'…" autocomplete="off" />
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="chips" id="chips"></div>
+      <div class="activeTag" id="activeTag"></div>
+    </header>
+
+    <section id="todaySec">
+      <div class="sectionhead"><h2>✨ Today's drip</h2><span class="sub" id="todaySub"></span></div>
+      <div class="grid" id="today"></div>
+    </section>
+
+    <section id="librarySec">
+      <div class="sectionhead"><h2>📚 The library</h2><span class="sub" id="librarySub"></span></div>
+      <div class="grid" id="library"></div>
+    </section>
+
+    <section id="glossarySec">
+      <div class="sectionhead"><h2>🧠 Glossary</h2><span class="sub">the language of agentics — grows over time</span></div>
+      <div class="glosswrap" id="glossary"></div>
+    </section>
+
+    <section>
+      <div class="teach">
+        <h2>🎥 Teach it back</h2>
+        <p class="lead">The fastest way to actually <em>learn</em> this stuff is to explain it out loud. Record a short video reacting to today's drip — what surprised you, what you'd push back on — and drop the link here. Explaining it back is what moves an idea from "I read it" to "I get it."</p>
+        <div class="vform">
+          <input id="vTitle" class="title" type="text" placeholder="title (e.g. 'Why multi-agent isn't free')" />
+          <input id="vUrl" type="text" placeholder="paste a YouTube / Vimeo / Loom link — or a local .mp4 path" />
+          <button id="vAdd">Publish ▶</button>
+        </div>
+        <p class="hint">Saved privately in this browser. Local files work too — paste a path like <code>file:///Users/you/clip.mp4</code>.</p>
+        <div class="videos" id="videos"></div>
+      </div>
+    </section>
+
+    <footer>made for curious minds · rose.tech · new material lands every morning 🐬</footer>
+  </div>
+
+<script>
+const DB = __DATA_JSON__;
+
+const CAT_COLORS = {
+  "Cool experiment":"var(--pink)","Research":"var(--purple)","Interesting result":"var(--green)",
+  "Big question":"var(--orange)","News":"var(--blue)"
+};
+const catColor = c => CAT_COLORS[c] || "var(--grey)";
+
+// ---------- state ----------
+let state = { q:"", cat:"all", tag:null };
+const entries = (DB.entries||[]).slice().sort((a,b)=> (b.date||"").localeCompare(a.date||"") || (b.id||"").localeCompare(a.id||""));
+const latestDate = entries.length ? entries[0].date : null;
+
+// ---------- localStorage helpers ----------
+const LS = {
+  get:(k,f)=>{ try{const v=localStorage.getItem(k);return v==null?f:JSON.parse(v);}catch(e){return f;} },
+  set:(k,v)=>{ try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} }
+};
+
+// ---------- filtering ----------
+function matches(e){
+  if(state.cat!=="all" && e.category!==state.cat) return false;
+  if(state.tag && !(e.tags||[]).includes(state.tag)) return false;
+  if(state.q){
+    const hay = [e.title,e.summary,e.source,e.category,(e.tags||[]).join(" "),e.question].join(" ").toLowerCase();
+    if(!hay.includes(state.q.toLowerCase())) return false;
+  }
+  return true;
+}
+
+// ---------- card rendering ----------
+function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+function cardHTML(e){
+  const color = catColor(e.category);
+  const tags = (e.tags||[]).map(t=>`<button class="tag" data-tag="${esc(t)}">${esc(t)}</button>`).join("");
+  const learned = LS.get("rt_learned_"+e.id,false);
+  const note = LS.get("rt_note_"+e.id,"");
+  const q = e.question ? `<div class="qbox"><span class="qlabel">think about it</span>${esc(e.question)}</div>` : "";
+  return `<article class="card" style="border-left-color:${color}" data-id="${esc(e.id)}">
+    <div class="top">
+      <span class="emoji">${e.emoji||"🤖"}</span>
+      <span class="badge" style="background:${color}">${esc(e.category||"")}</span>
+      <span class="date">${esc(e.date||"")}</span>
+    </div>
+    <h3><a href="${esc(e.url)}" target="_blank" rel="noopener">${esc(e.title)}</a></h3>
+    <div class="source">via <span class="link">${esc(e.source||"link")}</span> ↗</div>
+    <p class="summary">${esc(e.summary)}</p>
+    ${q}
+    <div class="tags">${tags}</div>
+    <div class="cardfoot">
+      <label class="learn"><input type="checkbox" class="learnbox" ${learned?"checked":""}/> ${learned?"learned ✓":"mark as learned"}</label>
+      <button class="notetoggle">📝 my notes${note?" •":""}</button>
+    </div>
+    <div class="notewrap">
+      <textarea class="noteinput" placeholder="what stuck with you? a question, a disagreement, a connection to something else…">${esc(note)}</textarea>
+      <div class="saved"></div>
+    </div>
+  </article>`;
+}
+
+function wireCard(el){
+  const id = el.getAttribute("data-id");
+  el.querySelectorAll(".tag").forEach(b=> b.addEventListener("click",()=>{ state.tag=b.getAttribute("data-tag"); document.getElementById("search").scrollIntoView({behavior:"smooth",block:"start"}); render(); }));
+  const box = el.querySelector(".learnbox");
+  box && box.addEventListener("change",()=>{ LS.set("rt_learned_"+id,box.checked); renderStats();
+    el.querySelector(".learn").childNodes[1].nodeValue = box.checked?" learned ✓":" mark as learned"; });
+  const toggle = el.querySelector(".notetoggle");
+  const wrap = el.querySelector(".notewrap");
+  toggle && toggle.addEventListener("click",()=> wrap.classList.toggle("open"));
+  const ta = el.querySelector(".noteinput");
+  const saved = el.querySelector(".saved");
+  let t;
+  ta && ta.addEventListener("input",()=>{ clearTimeout(t); t=setTimeout(()=>{ LS.set("rt_note_"+id,ta.value); saved.textContent="saved ✓"; toggle.innerHTML="📝 my notes"+(ta.value?" •":""); setTimeout(()=>saved.textContent="",1200); },350); });
+}
+
+function renderGrid(targetId, list, emptyMsg){
+  const box = document.getElementById(targetId);
+  if(!list.length){ box.innerHTML = `<div class="empty">${emptyMsg || "No items match yet — try clearing the filter. 🐬"}</div>`; return; }
+  box.innerHTML = list.map(cardHTML).join("");
+  box.querySelectorAll(".card").forEach(wireCard);
+}
+
+// ---------- chips ----------
+function renderChips(){
+  const cats = ["all", ...Array.from(new Set(entries.map(e=>e.category)))];
+  document.getElementById("chips").innerHTML = cats.map(c=>
+    `<button class="chip ${state.cat===c?"active":""}" data-cat="${esc(c)}">${c==="all"?"✦ all":esc(c)}</button>`).join("");
+  document.querySelectorAll(".chip").forEach(ch=> ch.addEventListener("click",()=>{ state.cat=ch.getAttribute("data-cat"); render(); }));
+  const at = document.getElementById("activeTag");
+  if(state.tag){ at.style.display="flex"; at.innerHTML = `filtering by <button class="tag">${esc(state.tag)}</button> <button class="x" title="clear">✕</button>`;
+    at.querySelector(".x").addEventListener("click",()=>{ state.tag=null; render(); }); }
+  else at.style.display="none";
+}
+
+// ---------- stats ----------
+function renderStats(){
+  const learned = entries.filter(e=>LS.get("rt_learned_"+e.id,false)).length;
+  document.getElementById("stats").innerHTML =
+    `<b>${entries.length}</b> items in the library · <b>${learned}</b> marked learned · updated <b>${esc(DB.site&&DB.site.updated||latestDate||"")}</b>`;
+}
+
+// ---------- glossary ----------
+function renderGlossary(){
+  const q = state.q.toLowerCase();
+  const list = (DB.glossary||[]).filter(g=> !q || (g.term+" "+g.def).toLowerCase().includes(q));
+  const box = document.getElementById("glossary");
+  box.innerHTML = list.length ? list.map(g=>
+    `<details class="term"><summary>${esc(g.term)}</summary><p>${esc(g.def)}</p></details>`).join("")
+    : `<div class="empty" style="background:transparent">No terms match "${esc(state.q)}".</div>`;
+}
+
+// ---------- teach-back videos ----------
+function embedFor(url){
+  const u = (url||"").trim();
+  let m;
+  if((m=u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{6,})/))) return {type:"iframe",src:"https://www.youtube.com/embed/"+m[1]};
+  if((m=u.match(/vimeo\.com\/(?:video\/)?(\d+)/))) return {type:"iframe",src:"https://player.vimeo.com/video/"+m[1]};
+  if((m=u.match(/loom\.com\/(?:share|embed)\/([\w-]+)/))) return {type:"iframe",src:"https://www.loom.com/embed/"+m[1]};
+  if(/^(file:|\/|[a-zA-Z]:\\)/.test(u) || /\.(mp4|webm|ogg|ogv|mov)(\?.*)?$/i.test(u)) return {type:"video",src:u};
+  return {type:"link",src:u};
+}
+function renderVideos(){
+  const vids = LS.get("rt_videos",[]);
+  const box = document.getElementById("videos");
+  if(!vids.length){ box.innerHTML = `<div class="vempty">No teach-backs yet. Your first explainer goes here 👆</div>`; return; }
+  box.innerHTML = vids.map(v=>{
+    const emb = embedFor(v.url);
+    let frame;
+    if(emb.type==="iframe") frame = `<div class="frame"><iframe src="${esc(emb.src)}" allowfullscreen allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture"></iframe></div>`;
+    else if(emb.type==="video") frame = `<div class="frame"><video controls src="${esc(emb.src)}"></video></div>`;
+    else frame = `<div class="vempty">▶ <a href="${esc(emb.src)}" target="_blank" rel="noopener" style="color:#ffd1f0">open video link ↗</a></div>`;
+    return `<div class="vid" data-vid="${v.id}">
+      <div class="vtop"><span class="vtitle">${esc(v.title||"Teach-back")}</span><span class="vdate">${esc(v.date||"")}</span><button class="del">remove</button></div>
+      ${frame}
+    </div>`;
+  }).join("");
+  box.querySelectorAll(".del").forEach(b=> b.addEventListener("click",()=>{
+    const id = b.closest(".vid").getAttribute("data-vid");
+    LS.set("rt_videos", LS.get("rt_videos",[]).filter(x=>String(x.id)!==String(id))); renderVideos();
+  }));
+}
+function addVideo(){
+  const url = document.getElementById("vUrl").value.trim();
+  const title = document.getElementById("vTitle").value.trim();
+  if(!url){ document.getElementById("vUrl").focus(); return; }
+  const vids = LS.get("rt_videos",[]);
+  vids.unshift({ id:Date.now(), url, title, date:new Date().toISOString().slice(0,10) });
+  LS.set("rt_videos",vids);
+  document.getElementById("vUrl").value=""; document.getElementById("vTitle").value="";
+  renderVideos();
+}
+
+// ---------- main render ----------
+function render(){
+  renderChips();
+  renderStats();
+  const filterActive = !!(state.q || state.tag || state.cat!=="all");
+
+  // Today's drip = the latest day's items. Hidden while searching/filtering so
+  // results live in one place (the library) with no duplication.
+  const todayItems = entries.filter(e=> e.date===latestDate);
+  document.getElementById("todaySec").style.display = filterActive ? "none" : "block";
+  document.getElementById("todaySub").textContent = latestDate ? (todayItems.length+" item"+(todayItems.length===1?"":"s")+" · "+latestDate) : "";
+  renderGrid("today", todayItems);
+
+  // Library = the searchable archive. Unfiltered, it's everything BEFORE today
+  // (so it never duplicates the drip); filtering searches the whole collection.
+  const lib = filterActive ? entries.filter(matches) : entries.filter(e=> e.date!==latestDate);
+  document.getElementById("librarySub").textContent = filterActive
+    ? (lib.length+" of "+entries.length+" shown")
+    : (lib.length ? (lib.length+" earlier "+(lib.length===1?"entry":"entries")) : "the archive grows each day");
+  renderGrid("library", lib, filterActive
+    ? "No items match — try clearing the filter. 🐬"
+    : "🐬 Your archive fills up as new days drop. Search above to explore everything, or check back tomorrow.");
+
+  renderGlossary();
+}
+
+// ---------- wire up ----------
+document.getElementById("search").addEventListener("input",e=>{ state.q=e.target.value; render(); });
+document.getElementById("vAdd").addEventListener("click",addVideo);
+document.getElementById("vUrl").addEventListener("keydown",e=>{ if(e.key==="Enter") addVideo(); });
+if(DB.site && DB.site.tagline) document.getElementById("tagline").textContent = DB.site.tagline;
+render();
+renderVideos();
+</script>
+</body>
+</html>
