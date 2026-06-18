@@ -1,0 +1,35 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//rose.tech//Agentics Roundtable//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VTIMEZONE
+TZID:America/Los_Angeles
+X-LIC-LOCATION:America/Los_Angeles
+BEGIN:DAYLIGHT
+TZOFFSETFROM:-0800
+TZOFFSETTO:-0700
+TZNAME:PDT
+DTSTART:19700308T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:-0700
+TZOFFSETTO:-0800
+TZNAME:PST
+DTSTART:19701101T020000
+RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:agentics-roundtable-weekly@rose.tech
+DTSTAMP:20260618T180000Z
+DTSTART;TZID=America/Los_Angeles:20260624T110000
+DTEND;TZID=America/Los_Angeles:20260624T123000
+RRULE:FREQ=WEEKLY;BYDAY=WE
+SUMMARY:rose.tech — Wednesday Live: Agentics Roundtable
+LOCATION:https://meet.jit.si/rose-tech-agentics-live-7fk29q
+URL:https://rose.tech
+DESCRIPTION:Weekly live discussion about artificial agentics (AI agents / agentic AI).\nJoin from the site — click "Join the live room" at https://rose.tech — or go straight to the room: https://meet.jit.si/rose-tech-agentics-live-7fk29q\n\nRuns in your browser via Jitsi Meet. No account or download needed. You'll join muted with camera off; unmute when you want to jump in.
+END:VEVENT
+END:VCALENDAR
