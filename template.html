@@ -7,6 +7,7 @@
 <style>
   :root{
     --dolphin: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='38' height='38'><text x='1' y='29' font-size='30'>🐬</text></svg>") 6 20;
+    --satellite: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><text x='1' y='30' font-size='30'>🛰️</text></svg>") 8 20;
     --ink:#241b3a;
     --muted:#6b6480;
     --card:#ffffff;
@@ -27,6 +28,8 @@
   a:hover{text-decoration:underline}
   button, .chip, a, .tag, summary{cursor:pointer}
   input, textarea{cursor:text}
+  /* click anything -> satellite (instead of the white hand) */
+  *:active{cursor: var(--satellite), auto !important}
 
   .wrap{max-width:1000px;margin:0 auto;padding:0 18px}
 
@@ -171,6 +174,28 @@
   .freecard .fv{font-size:13.5px;color:#574d70;font-weight:600;line-height:1.5}
   @media(max-width:560px){ .freecard{grid-template-columns:1fr} }
 
+  /* DICTIONARY */
+  .dicthero{background:var(--card);border-radius:24px;padding:24px 26px;box-shadow:0 12px 28px rgba(70,50,120,.12);position:relative;overflow:hidden;margin-bottom:18px}
+  .dicthero::before{content:"";position:absolute;top:0;left:0;right:0;height:7px;background:linear-gradient(90deg,var(--blue),var(--purple),var(--pink))}
+  .dicthero h2{font-size:clamp(22px,3.4vw,28px);margin:10px 0 6px;font-weight:800}
+  .dicthero p{font-size:15px;line-height:1.6;color:#352b4d;margin:0;max-width:72ch}
+  .dictbar{position:relative;margin:16px 0 4px}
+  .dictbar input{width:100%;font-size:16px;padding:14px 16px 14px 46px;border-radius:16px;border:3px solid #fff;background:rgba(255,255,255,.9);box-shadow:0 8px 22px rgba(108,92,231,.14);outline:none;font-weight:600;color:var(--ink)}
+  .dictbar input:focus{border-color:var(--purple)}
+  .dictbar .mag{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:19px;pointer-events:none}
+  .dictcount{font-size:13px;color:#5a4f72;font-weight:800;margin:8px 2px 0}
+  .dictgrid{display:grid;gap:14px;grid-template-columns:1fr 1fr;margin-top:8px}
+  @media(max-width:640px){ .dictgrid{grid-template-columns:1fr} }
+  .dterm{background:var(--card);border-radius:18px;padding:16px 18px;box-shadow:0 10px 24px rgba(70,50,120,.10);border-left:6px solid var(--purple)}
+  .dterm h3{margin:0 0 6px;font-size:18px;font-weight:800;color:var(--ink)}
+  .dterm p{margin:0 0 10px;font-size:14.5px;line-height:1.55;color:#352b4d}
+  .dmeta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
+  .dlabel{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;font-weight:800;color:#8a7fb0;margin-right:2px}
+  .dchip{border:none;border-radius:999px;font-weight:700;font-size:12px;padding:4px 10px}
+  .dchip.syn{background:#eafff6;color:#079e76}
+  .dchip.rel{background:#f0ecff;color:#5b4bd6}
+  .dchip:hover{filter:brightness(.97)}
+
   footer{text-align:center;padding:34px 0 50px;color:#5a4f72;font-weight:700;font-size:13px}
   .empty{background:rgba(255,255,255,.6);border-radius:18px;padding:30px;text-align:center;font-weight:700;color:#5a4f72}
   @media(max-width:560px){ .card{padding:18px} .date{margin-left:0} }
@@ -184,6 +209,7 @@
       <nav class="nav" id="nav">
         <button class="navbtn active" data-view="home">✨ Daily drip</button>
         <button class="navbtn" data-view="meetup">🛰️ Meetup</button>
+        <button class="navbtn" data-view="dictionary">📖 Dictionary</button>
       </nav>
     </header>
 
@@ -266,6 +292,20 @@
           <div class="mframe" id="muFrame"></div>
         </div>
       </section>
+    </main>
+
+    <main id="dictionaryView" class="view" style="display:none">
+      <section class="dicthero">
+        <span class="freebadge">📖 growing weekly</span>
+        <h2>Agentics Dictionary</h2>
+        <p>Plain-English definitions, synonyms, and related words from the world of AI agents and tech news — a shared cheat-sheet so you and your friends can keep up with the jargon. New words get added automatically every week.</p>
+        <div class="dictbar">
+          <span class="mag">🔍</span>
+          <input id="dictSearch" type="search" placeholder="search a term — 'rag', 'orchestration', 'guardrails'…" autocomplete="off" />
+        </div>
+        <div class="dictcount" id="dictCount"></div>
+      </section>
+      <div class="dictgrid" id="dictList"></div>
     </main>
 
     <footer>made for curious minds · rose.tech · new material lands every morning 🐬</footer>
@@ -579,23 +619,46 @@ function renderMeetup(){
 }
 
 // ---------- view router (tabs) ----------
+const VIEWS=["home","meetup","dictionary"];
 function showView(v){
-  v = (v==="meetup") ? "meetup" : "home";
-  const hv=document.getElementById("homeView"), mv=document.getElementById("meetupView");
-  if(hv) hv.style.display=(v==="meetup")?"none":"block";
-  if(mv) mv.style.display=(v==="meetup")?"block":"none";
+  if(!VIEWS.includes(v)) v="home";
+  const ids={home:"homeView",meetup:"meetupView",dictionary:"dictionaryView"};
+  Object.keys(ids).forEach(k=>{ const el=document.getElementById(ids[k]); if(el) el.style.display=(k===v)?"block":"none"; });
   document.querySelectorAll(".navbtn").forEach(b=> b.classList.toggle("active", b.getAttribute("data-view")===v));
-  const want=(v==="meetup")?"#meetup":"#home";
+  const want="#"+v;
   if(location.hash!==want){ try{ history.replaceState(null,"",want); }catch(e){ location.hash=want; } }
   window.scrollTo({top:0,behavior:"smooth"});
 }
 document.querySelectorAll(".navbtn").forEach(b=> b.addEventListener("click",()=> showView(b.getAttribute("data-view"))));
 window.addEventListener("hashchange",()=> showView(location.hash.replace("#","")));
 
+// ---------- dictionary ----------
+function renderDictionary(){
+  const view=document.getElementById('dictionaryView'); if(!view) return;
+  const data=(DB.dictionary||[]).slice().sort((a,b)=> (a.term||'').toLowerCase().localeCompare((b.term||'').toLowerCase()));
+  const cntEl=document.getElementById('dictCount'); if(cntEl) cntEl.textContent=data.length+' terms · grows weekly 🛰️';
+  const box=document.getElementById('dictList'); if(!box) return;
+  const q=((document.getElementById('dictSearch')||{}).value||'').toLowerCase().trim();
+  const list=data.filter(d=> !q || (d.term+' '+(d.def||'')+' '+(d.synonyms||[]).join(' ')+' '+(d.related||[]).join(' ')).toLowerCase().includes(q));
+  box.innerHTML = list.length ? list.map(d=>{
+    const syn=(d.synonyms||[]).map(s=>`<button class="dchip syn" data-w="${esc(s)}">${esc(s)}</button>`).join('');
+    const rel=(d.related||[]).map(s=>`<button class="dchip rel" data-w="${esc(s)}">${esc(s)}</button>`).join('');
+    return `<article class="dterm">
+      <h3>${esc(d.term)}</h3>
+      <p>${esc(d.def||'')}</p>
+      ${syn?`<div class="dmeta"><span class="dlabel">synonyms</span>${syn}</div>`:''}
+      ${rel?`<div class="dmeta"><span class="dlabel">related</span>${rel}</div>`:''}
+    </article>`;
+  }).join('') : `<div class="empty" style="background:transparent">No terms match "${esc(q)}" yet. 🐬</div>`;
+  box.querySelectorAll('.dchip').forEach(b=> b.addEventListener('click',()=>{ const s=document.getElementById('dictSearch'); if(s){ s.value=b.getAttribute('data-w'); renderDictionary(); s.scrollIntoView({behavior:'smooth',block:'center'}); } }));
+}
+(function(){ const s=document.getElementById('dictSearch'); if(s) s.addEventListener('input', renderDictionary); })();
+
 if(DB.site && DB.site.tagline) document.getElementById("tagline").textContent = DB.site.tagline;
 render();
 renderVideos();
 renderMeetup();
+renderDictionary();
 showView(location.hash.replace("#","") || "home");
 </script>
 </body>
